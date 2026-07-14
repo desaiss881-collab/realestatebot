@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase'
 
 export default function NewPropertyPage() {
@@ -13,10 +13,14 @@ export default function NewPropertyPage() {
   const [pdfFile, setPdfFile] = useState<File | null>(null)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
-  const supabase = createClient()
+  const supabaseRef = useRef<ReturnType<typeof createClient> | null>(null)
+
+  useEffect(() => {
+    supabaseRef.current = createClient()
+  }, [])
 
   async function getToken() {
-    const { data } = await supabase.auth.getSession()
+    const { data } = await supabaseRef.current!.auth.getSession()
     return data.session?.access_token ?? ''
   }
 

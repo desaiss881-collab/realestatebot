@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase'
 
 type Property = {
@@ -24,7 +24,11 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
   const [imageFiles, setImageFiles] = useState<FileList | null>(null)
   const [pdfFile, setPdfFile] = useState<File | null>(null)
   const [propertyId, setPropertyId] = useState('')
-  const supabase = createClient()
+  const supabaseRef = useRef<ReturnType<typeof createClient> | null>(null)
+
+  useEffect(() => {
+    supabaseRef.current = createClient()
+  }, [])
 
   useEffect(() => {
     params.then(({ id }) => {
@@ -34,7 +38,7 @@ export default function EditPropertyPage({ params }: { params: Promise<{ id: str
   }, [params])
 
   async function getToken() {
-    const { data } = await supabase.auth.getSession()
+    const { data } = await supabaseRef.current!.auth.getSession()
     return data.session?.access_token ?? ''
   }
 

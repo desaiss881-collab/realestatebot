@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase'
 
 type Property = {
@@ -37,14 +37,15 @@ export default function AgentPropertiesPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [budgetFilter, setBudgetFilter] = useState(MAX_BUDGET)
-  const supabase = createClient()
+  const supabaseRef = useRef<ReturnType<typeof createClient> | null>(null)
 
   useEffect(() => {
+    supabaseRef.current = createClient()
     loadProperties()
   }, [])
 
   async function getToken() {
-    const { data } = await supabase.auth.getSession()
+    const { data } = await supabaseRef.current!.auth.getSession()
     return data.session?.access_token ?? ''
   }
 

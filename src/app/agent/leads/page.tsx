@@ -102,12 +102,15 @@ export default function AgentLeadsPage() {
   const [broadcastStage, setBroadcastStage] = useState<string>('all')
   const [broadcasting, setBroadcasting] = useState(false)
   const [broadcastResult, setBroadcastResult] = useState<{ sent: number; failed: number } | null>(null)
-  const supabase = createClient()
+  const supabaseRef = useRef<ReturnType<typeof createClient> | null>(null)
 
-  useEffect(() => { loadLeads() }, [])
+  useEffect(() => {
+    supabaseRef.current = createClient()
+    loadLeads()
+  }, [])
 
   async function getToken() {
-    const { data } = await supabase.auth.getSession()
+    const { data } = await supabaseRef.current!.auth.getSession()
     return data.session?.access_token ?? ''
   }
 
