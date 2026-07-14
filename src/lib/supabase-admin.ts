@@ -1,18 +1,29 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 
-function getRequiredEnv(name: 'NEXT_PUBLIC_SUPABASE_URL' | 'SUPABASE_SERVICE_ROLE_KEY') {
-  const value = process.env[name]
+function resolveEnv(candidates: string[]) {
+  for (const name of candidates) {
+    const value = process.env[name as keyof NodeJS.ProcessEnv]
+    if (value) return value
+  }
+  return undefined
+}
+
+function getRequiredEnv(primary: string, fallbacks: string[] = []) {
+  const value = resolveEnv([primary, ...fallbacks])
   if (!value) {
-    throw new Error(`${name} is required.`)
+    throw new Error(`${primary} (or fallback) is required.`)
   }
   return value
 }
 
 function createSupabaseAdminClient() {
-  return createClient(
-    getRequiredEnv('NEXT_PUBLIC_SUPABASE_URL'),
-    getRequiredEnv('SUPABASE_SERVICE_ROLE_KEY')
-  )
+  const url = getRequiredEnv('NEXT_PUBLIC_SUPABASE_URL', ['test_SUPABASE_URL', 'TEST_SUPABASE_URL'])
+  const key = getRequiredEnv('SUPABASE_SERVICE_ROLE_KEY', [
+    'test_SUPABASE_SERVICE_ROLE_KEY',
+    'TEST_SUPABASE_SERVICE_ROLE_KEY',
+  ])
+
+  return createClient(url, key)
 }
 
 export const supabaseAdmin = new Proxy({} as SupabaseClient, {
