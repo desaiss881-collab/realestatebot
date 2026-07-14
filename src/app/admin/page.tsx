@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase'
 
 type Agent = {
@@ -15,7 +15,7 @@ type Agent = {
 export default function AdminPage() {
   const [agents, setAgents] = useState<Agent[]>([])
   const [loading, setLoading] = useState(true)
-  const supabase = createClient()
+  const supabaseRef = useRef<ReturnType<typeof createClient> | null>(null)
 
   async function loadAgents() {
     setLoading(true)
@@ -30,6 +30,8 @@ export default function AdminPage() {
   }
 
   useEffect(() => {
+    // initialize Supabase client only on the client to avoid server-side env access
+    supabaseRef.current = createClient()
     loadAgents()
   }, [])
 
@@ -43,7 +45,7 @@ export default function AdminPage() {
   }
 
   async function handleLogout() {
-    await supabase.auth.signOut()
+    await supabaseRef.current?.auth.signOut()
     window.location.href = '/'
   }
 
