@@ -63,8 +63,8 @@ export default function NewAgentPage() {
     setSuccess(true)
     setSaving(false)
     setName('')
-    setEassword('')
-    setPmail('')
+    setPassword('')
+    setEmail('')
     setPhone('')
     setAreasInput('')
   }
@@ -119,8 +119,7 @@ export default function NewAgentPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm"
-              placeholder="Set initial passwordrder border-gray-300 rounded-md text-sm"
-              placeholder="agent@example.com"
+              placeholder="Set initial password"
             />
           </div>
 
