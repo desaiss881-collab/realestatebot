@@ -1,6 +1,6 @@
-'use client'
+"use client"
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase'
 
 type Customer = {
@@ -47,12 +47,16 @@ export default function AgentCustomersPage() {
   const [sending, setSending] = useState(false)
   const [result, setResult] = useState<{ sent: number; failed: number } | null>(null)
   const [error, setError] = useState('')
-  const supabase = createClient()
+  const supabaseRef = useRef<ReturnType<typeof createClient> | null>(null)
 
-  useEffect(() => { loadCustomers() }, [])
+  useEffect(() => {
+    // initialize Supabase client only on the client to avoid server-side env access
+    supabaseRef.current = createClient()
+    loadCustomers()
+  }, [])
 
   async function getToken() {
-    const { data } = await supabase.auth.getSession()
+    const { data } = await supabaseRef.current!.auth.getSession()
     return data.session?.access_token ?? ''
   }
 
