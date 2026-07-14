@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createClient } from '@/lib/supabase'
 
 type AgentProfile = {
@@ -65,22 +65,25 @@ export default function AgentDashboard() {
   const [draftAreas, setDraftAreas] = useState<string[]>([])
   const [newArea, setNewArea] = useState('')
   const [savingAreas, setSavingAreas] = useState(false)
-  const supabase = createClient()
+  const supabaseRef = useRef<ReturnType<typeof createClient> | null>(null)
 
-  useEffect(() => { loadProfile() }, [])
+  useEffect(() => {
+    supabaseRef.current = createClient()
+    loadProfile()
+  }, [])
 
   async function loadProfile() {
     setLoading(true)
-    const { data: userData } = await supabase.auth.getUser()
+    const { data: userData } = await supabaseRef.current!.auth.getUser()
     if (!userData?.user) { window.location.href = '/agent'; return }
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseRef.current!
       .from('agents').select('*').eq('user_id', userData.user.id).single()
 
     if (error || !data) { setNotFound(true); setLoading(false); return }
     setAgent(data)
 
-    const { data: session } = await supabase.auth.getSession()
+    const { data: session } = await supabaseRef.current!.auth.getSession()
     const token = session.session?.access_token
     if (token) {
       const statsRes = await fetch('/api/stats', { headers: { Authorization: `Bearer ${token}` } })
@@ -91,7 +94,7 @@ export default function AgentDashboard() {
   }
 
   async function handleLogout() {
-    await supabase.auth.signOut()
+    await supabaseRef.current?.auth.signOut()
     window.location.href = '/agent'
   }
 
@@ -114,7 +117,7 @@ export default function AgentDashboard() {
 
   async function saveAreas() {
     setSavingAreas(true)
-    const { data: session } = await supabase.auth.getSession()
+    const { data: session } = await supabaseRef.current!.auth.getSession()
     const token = session.session?.access_token
     const res = await fetch('/api/agents/me', {
       method: 'PATCH',
