@@ -9,7 +9,7 @@ function resolveEnv(candidates: string[]) {
 }
 
 export function createClient() {
-  const url = resolveEnv(['NEXT_PUBLIC_SUPABASE_URL', 'test_SUPABASE_URL', 'TEST_SUPABASE_URL'])
+  const url = resolveEnv(['NEXT_PUBLIC_SUPABASE_URL', 'NEXT_PUBLIC_test_SUPABASE_URL', 'test_SUPABASE_URL', 'TEST_SUPABASE_URL'])
   const anon = resolveEnv([
     'NEXT_PUBLIC_SUPABASE_ANON_KEY',
     'NEXT_PUBLIC_test_SUPABASE_ANON_KEY',

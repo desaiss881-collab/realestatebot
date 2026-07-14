@@ -17,10 +17,15 @@ function getRequiredEnv(primary: string, fallbacks: string[] = []) {
 }
 
 function createSupabaseAdminClient() {
-  const url = getRequiredEnv('NEXT_PUBLIC_SUPABASE_URL', ['test_SUPABASE_URL', 'TEST_SUPABASE_URL'])
+  const url = getRequiredEnv('NEXT_PUBLIC_SUPABASE_URL', [
+    'NEXT_PUBLIC_test_SUPABASE_URL',
+    'test_SUPABASE_URL',
+    'TEST_SUPABASE_URL',
+  ])
   const key = getRequiredEnv('SUPABASE_SERVICE_ROLE_KEY', [
     'test_SUPABASE_SERVICE_ROLE_KEY',
     'TEST_SUPABASE_SERVICE_ROLE_KEY',
+    'NEXT_PUBLIC_test_SUPABASE_SERVICE_ROLE_KEY',
   ])
 
   return createClient(url, key)
